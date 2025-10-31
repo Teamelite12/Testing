@@ -10,7 +10,7 @@ The main goals of this project are:
 - Help developers test and validate web accessibility compliance
 
 ## Contents
-- `sample.html` - Sample HTML file for testing accessibility features
+- `sample.html` - Sample HTML file for accessibility testing experiments
 
 ## Usage
 1. Clone this repository
