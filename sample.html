@@ -3,9 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Notification – Reject Action</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Notification card */
+        .notification {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .notification-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .notification-badge {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 2px 7px;
+        }
+
+        .notification-body {
+            padding: 16px 20px;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* Action buttons */
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .btn-approve {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-reject {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        /* Comment panel – shown after Reject is clicked */
+        .comment-panel {
+            display: none;
+            padding: 0 20px 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .comment-panel.visible {
+            display: block;
+        }
+
+        .comment-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin: 12px 0 6px;
+        }
+
+        /*
+         * BUG RECREATION:
+         * Removing the explicit font-size from the textarea causes some browsers
+         * to fall back to their UA stylesheet default (often 13.3333px / "small"),
+         * while the ::placeholder pseudo-element may inherit a *different* computed
+         * size, making the placeholder text appear disproportionately large.
+         *
+         * FIX: Explicitly set font-size (and font-family) on the textarea so that
+         * both the typed text and the placeholder text share the same metrics.
+         */
+        .comment-textarea {
+            width: 100%;
+            min-height: 90px;
+            resize: vertical;
+            border: 1px solid #d9d9d9;
+            border-radius: 5px;
+            padding: 10px 12px;
+            font-family: inherit;   /* inherit body font — prevents UA-default monospace */
+            font-size: 14px;        /* explicit size — fixes oversized placeholder */
+            color: #1a1a1a;
+            line-height: 1.5;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .comment-textarea:focus {
+            border-color: #4096ff;
+            box-shadow: 0 0 0 2px rgba(64, 150, 255, 0.2);
+        }
+
+        /* Ensure placeholder text matches the textarea's own font metrics */
+        .comment-textarea::placeholder {
+            color: #bfbfbf;
+            font-size: 14px;   /* must equal .comment-textarea font-size */
+            font-family: inherit;
+        }
+
+        .comment-submit {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px 0;
+            background: #ff4d4f;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .comment-submit:hover {
+            opacity: 0.85;
+        }
+    </style>
 </head>
 <body>
-    <h1>djfhbdj</h1>
+
+    <div class="notification" id="notification">
+
+        <div class="notification-header">
+            <span class="notification-title">Pending Approval Request</span>
+            <span class="notification-badge">1 New</span>
+        </div>
+
+        <div class="notification-body">
+            <p class="notification-message">
+                <strong>Alex Johnson</strong> has requested approval for
+                <em>Project Budget – Q3 2026</em>. Please review and take action.
+            </p>
+
+            <div class="notification-actions">
+                <button class="btn btn-approve" onclick="handleApprove()">Approve</button>
+                <button class="btn btn-reject"  onclick="handleReject()">Reject</button>
+            </div>
+        </div>
+
+        <!-- Comment panel, revealed on Reject -->
+        <div class="comment-panel" id="commentPanel">
+            <p class="comment-label">Reason for rejection</p>
+            <textarea
+                id="commentBox"
+                class="comment-textarea"
+                placeholder="Leave a comment"
+                aria-label="Leave a comment"
+            ></textarea>
+            <button class="comment-submit" onclick="submitReject()">Submit Rejection</button>
+        </div>
+
+    </div>
+
+    <script>
+        function handleReject() {
+            document.getElementById("commentPanel").classList.add("visible");
+            document.getElementById("commentBox").focus();
+        }
+
+        function handleApprove() {
+            alert("Request approved!");
+        }
+
+        function submitReject() {
+            const comment = document.getElementById("commentBox").value.trim();
+            if (!comment) {
+                alert("Please leave a comment before submitting.");
+                return;
+            }
+            alert("Rejection submitted with comment:\n\n" + comment);
+        }
+    </script>
+
 </body>
 </html>
