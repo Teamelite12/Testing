@@ -3,9 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sample HTML Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        nav a {
+            margin-right: 15px;
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4a90e2;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        footer {
+            text-align: center;
+            color: #777;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>djfhbdj</h1>
+
+    <!-- Header -->
+    <header>
+        <h1>Sample HTML Page</h1>
+        <p>A demonstration of common HTML elements</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="#text">Text</a>
+        <a href="#lists">Lists</a>
+        <a href="#table">Table</a>
+        <a href="#form">Form</a>
+        <a href="#media">Media</a>
+    </nav>
+
+    <!-- Text Content -->
+    <section id="text">
+        <h2>Text Elements</h2>
+        <p>This is a <strong>paragraph</strong> with <em>italic</em>, <strong>bold</strong>, and <mark>highlighted</mark> text.</p>
+        <p>You can also use <code>inline code</code> or show <abbr title="HyperText Markup Language">HTML</abbr> abbreviations.</p>
+        <blockquote>
+            "The best way to predict the future is to invent it." — Alan Kay
+        </blockquote>
+        <hr>
+        <h3>Headings</h3>
+        <h1>Heading 1</h1>
+        <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+    </section>
+
+    <!-- Lists -->
+    <section id="lists">
+        <h2>Lists</h2>
+        <h3>Unordered List</h3>
+        <ul>
+            <li>HTML</li>
+            <li>CSS</li>
+            <li>JavaScript</li>
+        </ul>
+        <h3>Ordered List</h3>
+        <ol>
+            <li>Plan</li>
+            <li>Design</li>
+            <li>Build</li>
+            <li>Deploy</li>
+        </ol>
+    </section>
+
+    <!-- Table -->
+    <section id="table">
+        <h2>Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Alice</td>
+                    <td>Developer</td>
+                    <td>New York</td>
+                </tr>
+                <tr>
+                    <td>Bob</td>
+                    <td>Designer</td>
+                    <td>London</td>
+                </tr>
+                <tr>
+                    <td>Carol</td>
+                    <td>Manager</td>
+                    <td>Sydney</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Form -->
+    <section id="form">
+        <h2>Form</h2>
+        <form action="#" method="post">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Your name">
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com">
+
+            <label for="role">Role:</label>
+            <select id="role" name="role">
+                <option value="">Select a role</option>
+                <option value="developer">Developer</option>
+                <option value="designer">Designer</option>
+                <option value="manager">Manager</option>
+            </select>
+
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" rows="4" placeholder="Write something..."></textarea>
+
+            <label>
+                <input type="checkbox" name="agree"> I agree to the terms
+            </label>
+
+            <br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </section>
+
+    <!-- Media -->
+    <section id="media">
+        <h2>Media &amp; Links</h2>
+        <p>Visit <a href="https://www.example.com" target="_blank">example.com</a> for more information.</p>
+        <p>Placeholder image:</p>
+        <img src="https://via.placeholder.com/400x150?text=Sample+Image" alt="Sample placeholder image" style="max-width:100%; border-radius:4px;">
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Sample HTML Page. All rights reserved.</p>
+    </footer>
+
 </body>
 </html>
