@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fibonacci Calendar</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 6px;
+            color: #f0c040;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav button {
+            background: #f0c040;
+            border: none;
+            color: #1a1a2e;
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav button:hover {
+            background: #ffd966;
+        }
+
+        .nav h2 {
+            font-size: 1.3rem;
+            min-width: 200px;
+            text-align: center;
+            color: #f0c040;
+        }
+
+        .calendar {
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .day-labels {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .day-label {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #aaa;
+            padding: 4px 0;
+            text-transform: uppercase;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #16213e;
+            font-size: 0.9rem;
+            cursor: default;
+            transition: transform 0.15s;
+            position: relative;
+        }
+
+        .day.empty {
+            background: transparent;
+        }
+
+        .day.fibonacci {
+            background: linear-gradient(135deg, #b5451b, #f0c040);
+            color: #1a1a2e;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(240, 192, 64, 0.35);
+        }
+
+        .day.fibonacci:hover {
+            transform: scale(1.08);
+        }
+
+        .day.today {
+            outline: 3px solid #f0c040;
+            outline-offset: 2px;
+        }
+
+        .fib-badge {
+            font-size: 0.55rem;
+            background: #1a1a2e;
+            color: #f0c040;
+            border-radius: 3px;
+            padding: 1px 3px;
+            margin-top: 2px;
+            font-weight: bold;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 24px;
+            font-size: 0.8rem;
+            color: #aaa;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+        }
+
+        .legend-box.fibonacci {
+            background: linear-gradient(135deg, #b5451b, #f0c040);
+        }
+
+        .legend-box.today {
+            background: #16213e;
+            outline: 3px solid #f0c040;
+            outline-offset: 1px;
+        }
+
+        .fib-sequence {
+            margin-top: 28px;
+            max-width: 560px;
+            background: #16213e;
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-size: 0.85rem;
+            color: #ccc;
+            text-align: center;
+        }
+
+        .fib-sequence strong {
+            color: #f0c040;
+        }
+
+        .fib-sequence .seq {
+            margin-top: 8px;
+            word-break: break-all;
+            line-height: 1.7;
+        }
+
+        .fib-sequence .seq span {
+            display: inline-block;
+            background: linear-gradient(135deg, #b5451b, #f0c040);
+            color: #1a1a2e;
+            border-radius: 4px;
+            padding: 2px 7px;
+            margin: 2px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌀 Fibonacci Calendar</h1>
+    <p class="subtitle">Days matching Fibonacci numbers are highlighted</p>
+
+    <div class="nav">
+        <button id="prev" aria-label="Previous month">&#8592;</button>
+        <h2 id="month-label"></h2>
+        <button id="next" aria-label="Next month">&#8594;</button>
+    </div>
+
+    <div class="calendar">
+        <div class="day-labels">
+            <div class="day-label">Sun</div>
+            <div class="day-label">Mon</div>
+            <div class="day-label">Tue</div>
+            <div class="day-label">Wed</div>
+            <div class="day-label">Thu</div>
+            <div class="day-label">Fri</div>
+            <div class="day-label">Sat</div>
+        </div>
+        <div class="days" id="days"></div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-box fibonacci"></div>
+            Fibonacci day
+        </div>
+        <div class="legend-item">
+            <div class="legend-box today"></div>
+            Today
+        </div>
+    </div>
+
+    <div class="fib-sequence">
+        <strong>Fibonacci sequence (up to 31):</strong>
+        <div class="seq" id="fib-seq"></div>
+    </div>
+
+    <script>
+        // Generate Fibonacci numbers up to 31 (max days in a month)
+        function getFibSet(max) {
+            const fibs = new Set();
+            let a = 1, b = 1;
+            while (a <= max) {
+                fibs.add(a);
+                [a, b] = [b, a + b];
+            }
+            return fibs;
+        }
+
+        const FIB_SET = getFibSet(31);
+        const FIB_ARRAY = [...FIB_SET].sort((a, b) => a - b);
+
+        // Render the sequence display
+        const seqEl = document.getElementById('fib-seq');
+        FIB_ARRAY.forEach(n => {
+            const s = document.createElement('span');
+            s.textContent = n;
+            seqEl.appendChild(s);
+        });
+
+        const today = new Date();
+        let viewYear = today.getFullYear();
+        let viewMonth = today.getMonth(); // 0-indexed
+
+        const MONTHS = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        function renderCalendar(year, month) {
+            document.getElementById('month-label').textContent = `${MONTHS[month]} ${year}`;
+
+            const daysEl = document.getElementById('days');
+            daysEl.innerHTML = '';
+
+            const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const isCurrentMonth =
+                today.getFullYear() === year && today.getMonth() === month;
+            const todayDate = today.getDate();
+
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day empty';
+                daysEl.appendChild(empty);
+            }
+
+            // Day cells
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cell = document.createElement('div');
+                const isFib = FIB_SET.has(d);
+                const isToday = isCurrentMonth && d === todayDate;
+
+                cell.className = 'day' + (isFib ? ' fibonacci' : '') + (isToday ? ' today' : '');
+                cell.setAttribute('aria-label', `${d}${isFib ? ', Fibonacci number' : ''}${isToday ? ', Today' : ''}`);
+
+                const numEl = document.createElement('span');
+                numEl.textContent = d;
+                cell.appendChild(numEl);
+
+                if (isFib) {
+                    const badge = document.createElement('span');
+                    badge.className = 'fib-badge';
+                    badge.textContent = 'fib';
+                    cell.appendChild(badge);
+                }
+
+                daysEl.appendChild(cell);
+            }
+        }
+
+        document.getElementById('prev').addEventListener('click', () => {
+            viewMonth--;
+            if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+            renderCalendar(viewYear, viewMonth);
+        });
+
+        document.getElementById('next').addEventListener('click', () => {
+            viewMonth++;
+            if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+            renderCalendar(viewYear, viewMonth);
+        });
+
+        renderCalendar(viewYear, viewMonth);
+    </script>
+</body>
+</html>
