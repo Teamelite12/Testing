@@ -6,6 +6,7 @@ SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 CELL_SIZE = 20
 DELAY = 0.1
+RESET_DELAY = 0.5
 
 def setup_screen():
     screen = turtle.Screen()
@@ -38,7 +39,7 @@ def create_segment(x=0, y=0):
     seg = turtle.Turtle()
     seg.speed(0)
     seg.shape("square")
-    seg.color("lime green")
+    seg.color("limegreen")
     seg.penup()
     seg.goto(x, y)
     return seg
@@ -49,7 +50,6 @@ def place_food(food, segments):
                             (SCREEN_WIDTH // 2 - CELL_SIZE) // CELL_SIZE) * CELL_SIZE
         y = random.randint(-(SCREEN_HEIGHT // 2 - CELL_SIZE) // CELL_SIZE,
                             (SCREEN_HEIGHT // 2 - CELL_SIZE) // CELL_SIZE) * CELL_SIZE
-        pos = (x, y)
         if not any(int(s.xcor()) == x and int(s.ycor()) == y for s in segments):
             food.goto(x, y)
             return
@@ -100,7 +100,7 @@ def main():
 
     def reset():
         nonlocal score, direction
-        time.sleep(0.5)
+        time.sleep(RESET_DELAY)
         direction = "stop"
         for seg in segments[1:]:
             seg.hideturtle()
@@ -151,7 +151,7 @@ def main():
 
         # Self collision
         for seg in segments[1:]:
-            if head.distance(seg) < CELL_SIZE / 2:
+            if head.distance(seg) < CELL_SIZE:
                 reset()
                 break
         else:
