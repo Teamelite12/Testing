@@ -3,11 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>GitHub Side Panels</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: grid;
+            grid-template-columns: 220px 1fr 220px;
+            min-height: 100vh;
+        }
+
+        aside {
+            background: #f6f8fa;
+            padding: 1rem;
+            border-right: 1px solid #d0d7de;
+        }
+
+        aside:last-of-type {
+            border-right: none;
+            border-left: 1px solid #d0d7de;
+        }
+
+        main {
+            padding: 2rem;
+        }
+    </style>
 </head>
 <body>
-    
-    <h1>djfhbdj</h1>
+    <aside aria-label="Left side panel">
+        <h2>Navigation</h2>
+        <p>Repository</p>
+        <p>Issues</p>
+        <p>Pull Requests</p>
+    </aside>
+    <main>
+        <h1>GitHub Dashboard</h1>
+        <p>Sample page with left and right side panels.</p>
+    </main>
+    <aside aria-label="Right side panel">
+        <h2>Quick Links</h2>
+        <p><a href="https://github.com">Open GitHub</a></p>
+    </aside>
 </body>
 </html>
-test
