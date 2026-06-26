@@ -32,8 +32,7 @@
             padding: 16px 20px;
             text-align: center;
             position: sticky;
-            top: 0;
-            top: env(safe-area-inset-top);
+            top: env(safe-area-inset-top, 0);
             z-index: 100;
         }
 
@@ -387,13 +386,15 @@
 
         ['touchstart', 'touchend', 'touchmove'].forEach(function(evtName) {
             gestureBox.addEventListener(evtName, function(e) {
-                e.preventDefault();
+                // Only prevent default on touchmove to stop page scroll within the demo box;
+                // touchstart/touchend are left as passive to preserve accessibility.
+                if (evtName === 'touchmove') { e.preventDefault(); }
                 const t = e.changedTouches[0];
                 const x = Math.round(t.clientX);
                 const y = Math.round(t.clientY);
                 gestureBox.classList.toggle('active', evtName !== 'touchend');
                 log(evtName + ' at (' + x + ', ' + y + ')  touches: ' + e.touches.length);
-            }, { passive: false });
+            }, { passive: evtName !== 'touchmove' });
         });
 
         gestureBox.addEventListener('click', function(e) {
