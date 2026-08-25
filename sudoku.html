@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hard Sudoku</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      color: #eee;
+    }
+    h1 { margin-bottom: 16px; font-size: 2rem; letter-spacing: 2px; color: #e94560; }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(9, 52px);
+      grid-template-rows: repeat(9, 52px);
+      border: 3px solid #e94560;
+      gap: 0;
+    }
+    .cell {
+      width: 52px;
+      height: 52px;
+      text-align: center;
+      font-size: 1.4rem;
+      border: 1px solid #444;
+      background: #16213e;
+      color: #eee;
+      outline: none;
+      caret-color: transparent;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .cell:focus { background: #0f3460; }
+    .cell.given { color: #e94560; font-weight: bold; cursor: default; }
+    .cell.error { background: #5c1a1a; color: #ff6b6b; }
+    .cell.correct { background: #1a3c1a; color: #6bff6b; }
+    /* thick borders for 3×3 boxes */
+    .cell:nth-child(3n+1):not(:nth-child(9n+1)) { border-left: 2px solid #e94560; }
+    .cell:nth-child(n+19):nth-child(-n+27),
+    .cell:nth-child(n+46):nth-child(-n+54) { border-top: 2px solid #e94560; }
+    /* row separators every 3 rows */
+    .cell[data-row="3"], .cell[data-row="6"] { border-top: 2px solid #e94560; }
+    .cell[data-col="3"], .cell[data-col="6"] { border-left: 2px solid #e94560; }
+    #controls { margin-top: 20px; display: flex; gap: 12px; }
+    button {
+      padding: 10px 22px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    #btnCheck  { background: #e94560; color: #fff; }
+    #btnSolve  { background: #0f3460; color: #eee; border: 2px solid #e94560; }
+    #btnReset  { background: #333; color: #eee; }
+    #message { margin-top: 14px; font-size: 1.1rem; min-height: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>SUDOKU — HARD</h1>
+  <div id="board"></div>
+  <div id="controls">
+    <button id="btnCheck">Check</button>
+    <button id="btnSolve">Solve</button>
+    <button id="btnReset">Reset</button>
+  </div>
+  <p id="message"></p>
+
+  <script>
+    // Hard puzzle — 0 means empty cell
+    const PUZZLE = [
+      [8, 0, 0,  0, 0, 0,  0, 0, 0],
+      [0, 0, 3,  6, 0, 0,  0, 0, 0],
+      [0, 7, 0,  0, 9, 0,  2, 0, 0],
+
+      [0, 5, 0,  0, 0, 7,  0, 0, 0],
+      [0, 0, 0,  0, 4, 5,  7, 0, 0],
+      [0, 0, 0,  1, 0, 0,  0, 3, 0],
+
+      [0, 0, 1,  0, 0, 0,  0, 6, 8],
+      [0, 0, 8,  5, 0, 0,  0, 1, 0],
+      [0, 9, 0,  0, 0, 0,  4, 0, 0]
+    ];
+
+    // Deep-copy puzzle so we can reset
+    function clonePuzzle() {
+      return PUZZLE.map(r => r.slice());
+    }
+
+    let grid = clonePuzzle(); // current user state
+
+    const board = document.getElementById('board');
+    const message = document.getElementById('message');
+    const cells = [];
+
+    // Build 9×9 grid of input elements
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = 1;
+        input.className = 'cell';
+        input.dataset.row = r;
+        input.dataset.col = c;
+
+        if (PUZZLE[r][c] !== 0) {
+          input.value = PUZZLE[r][c];
+          input.classList.add('given');
+          input.readOnly = true;
+        }
+
+        input.addEventListener('input', (e) => {
+          const val = e.target.value.replace(/[^1-9]/g, '');
+          e.target.value = val;
+          grid[r][c] = val ? parseInt(val) : 0;
+          e.target.classList.remove('error', 'correct');
+          message.textContent = '';
+        });
+
+        input.addEventListener('keydown', (e) => {
+          // Allow arrow-key navigation
+          const moves = { ArrowUp: [-1,0], ArrowDown: [1,0], ArrowLeft: [0,-1], ArrowRight: [0,1] };
+          if (moves[e.key]) {
+            const [dr, dc] = moves[e.key];
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < 9 && nc >= 0 && nc < 9) {
+              e.preventDefault();
+              cells[nr][nc].focus();
+            }
+          }
+        });
+
+        board.appendChild(input);
+        if (!cells[r]) cells[r] = [];
+        cells[r][c] = input;
+      }
+    }
+
+    // --- Validation ---
+    function isValidPlacement(g, row, col, num) {
+      for (let i = 0; i < 9; i++) {
+        if (g[row][i] === num && i !== col) return false;
+        if (g[i][col] === num && i !== row) return false;
+      }
+      const br = Math.floor(row / 3) * 3;
+      const bc = Math.floor(col / 3) * 3;
+      for (let r = br; r < br + 3; r++) {
+        for (let c = bc; c < bc + 3; c++) {
+          if (g[r][c] === num && !(r === row && c === col)) return false;
+        }
+      }
+      return true;
+    }
+
+    function checkBoard() {
+      let allFilled = true;
+      let hasError = false;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const cell = cells[r][c];
+          if (PUZZLE[r][c] !== 0) continue;
+          cell.classList.remove('error', 'correct');
+          const val = grid[r][c];
+          if (!val) { allFilled = false; continue; }
+          if (!isValidPlacement(grid, r, c, val)) {
+            cell.classList.add('error');
+            hasError = true;
+          } else {
+            cell.classList.add('correct');
+          }
+        }
+      }
+      if (hasError) {
+        message.textContent = '❌ Some cells have conflicts.';
+      } else if (!allFilled) {
+        message.textContent = '🔵 No conflicts so far — keep going!';
+      } else {
+        message.textContent = '✅ Puzzle solved correctly!';
+      }
+    }
+
+    // --- Backtracking solver ---
+    function solve(g) {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (g[r][c] === 0) {
+            for (let num = 1; num <= 9; num++) {
+              if (isValidPlacement(g, r, c, num)) {
+                g[r][c] = num;
+                if (solve(g)) return true;
+                g[r][c] = 0;
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function solveBoard() {
+      const solution = clonePuzzle();
+      if (solve(solution)) {
+        grid = solution;
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (PUZZLE[r][c] === 0) {
+              cells[r][c].value = solution[r][c];
+              cells[r][c].classList.remove('error');
+              cells[r][c].classList.add('correct');
+            }
+          }
+        }
+        message.textContent = '✅ Puzzle solved!';
+      } else {
+        message.textContent = '❌ No solution found.';
+      }
+    }
+
+    function resetBoard() {
+      grid = clonePuzzle();
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (PUZZLE[r][c] === 0) {
+            cells[r][c].value = '';
+            cells[r][c].classList.remove('error', 'correct');
+          }
+        }
+      }
+      message.textContent = '';
+    }
+
+    document.getElementById('btnCheck').addEventListener('click', checkBoard);
+    document.getElementById('btnSolve').addEventListener('click', solveBoard);
+    document.getElementById('btnReset').addEventListener('click', resetBoard);
+  </script>
+</body>
+</html>
